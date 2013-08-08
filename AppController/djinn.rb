@@ -3769,8 +3769,7 @@ HOSTS
       # send a warmup request to the app to get it loaded - can shave a
       # number of seconds off the initial request if it's java or go
       # go provides a default warmup route
-      # TODO: if the user specifies a warmup route, call it instead of /
-      warmup_url = "/"
+      warmup_url = HelperFunctions.get_warmup_url(app, app_language)
 
       app_manager = AppManagerClient.new()
       # TODO(cgb): What happens if the user updates their env vars between app
@@ -3840,6 +3839,7 @@ HOSTS
           wget_haproxy = "wget #{WGET_OPTIONS} #{haproxy_location}"
           wget_nginx = "wget #{WGET_OPTIONS} #{nginx_location}"
 
+          Djinn.log_debug("Warmup URL for app #{app} is #{warmup_url}")
           Djinn.log_run(wget_haproxy)
           Djinn.log_run(wget_nginx)
         }

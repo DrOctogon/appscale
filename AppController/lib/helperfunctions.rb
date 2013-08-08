@@ -1414,5 +1414,32 @@ module HelperFunctions
     self.shell("cp #{RESOLV_CONF}.bk #{RESOLV_CONF}")
   end
 
+  # Parses the app.yaml for inbound_services to determine if warmup is set.
+  #
+  #Args:
+  #   apps: A string that contains the applications name.
+  #   runtime: A string that contains the applications programming language.
+  def self.get_warmup_url(app, runtime)
+    if ["python", "python27", "go"].include?(runtime)
+      app_yaml_file = "/var/apps/#{app}/app/app.yaml"
+      app_yaml = YAML.load_file(app_yaml_file)["inbound_services"]
+      if !app_yaml.nil? and app_yaml.include?("warmup")
+        return "/_ah/warmup"
+      else
+        return "/"
+      end
+    elsif runtime == "java"
+      appengine_web_xml_file = "/var/apps/#{app}/app/war/WEB-INF/appengine-web.xml"
+      xml_contents = HelperFunctions.read_file(appengine_web_xml_file)
+      if xml_contents =~ /<inbound-services>.*<service>warmup.*<\/inbound-services>/m
+        return "/_ah/warmup"
+      else
+        return "/"
+      end
+    else
+      HelperFunctions.log_and_crash("warmup: runtime was not python, " +
+                                        "python27, go, java but was [#{runtime}]")
+    end
+  end
 
 end
