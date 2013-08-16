@@ -531,6 +531,49 @@ class AppUploadPage(AppDashboard):
     self.render_page(page='apps', template_file=self.TEMPLATE)
 
 
+class AppUploadFromGit(AppDashboard):
+  """ Class to handle requests to deploy apps from Git repository. """
+
+
+  TEMPLATE = 'apps/new.html'
+
+
+  def post(self):
+    """ Handler for POST requests. """
+    repo = self.request.get("repo")
+    branch = self.request.get("branch")
+    app_path = self.request.get("app_path")
+    logging.info('Print all the values repo:{0} b:{1} p:{2}'.format(repo, branch, app_path))
+
+    if self.dstore.can_upload_apps():
+      try:
+        success, repo_location = self.helper.download_app(cgi.escape(repo),
+                                                cgi.escape(branch),
+                                                cgi.escape(app_path))
+        logging.info('Response: {0} - {1}'.format(success, repo_location))
+        flash_message = None
+        error_flash_message = None
+        if success:
+          flash_message = self.helper.upload_app(repo_location)
+          #flash_message = "Your app is being processed and will become available shortly."
+        else:
+          error_flash_message = repo_location
+
+        self.render_page(page='apps', template_file=self.TEMPLATE, values={
+          'flash_message':flash_message,
+          'error_flash_message':error_flash_message,
+          })
+      except Exception as err:
+        logging.exception(err)
+
+
+
+
+  def get(self):
+    """ Handler for GET requests. """
+    self.render_page(page='git-deploy', template_file=self.TEMPLATE)
+
+
 class AppDeletePage(AppDashboard):
   """ Class to handle requests to the /apps/delete page. """
 
@@ -1070,7 +1113,8 @@ app = webapp2.WSGIApplication([ ('/', IndexPage),
                                 ('/logs/(.+)/(.+)', LogServiceHostPage),
                                 ('/logs/(.+)', LogServicePage),
                                 ('/gather-logs', LogDownloader),
-                                ('/groomer', RunGroomer)
+                                ('/groomer', RunGroomer),
+                                ('/git-deploy', AppUploadFromGit),
                               ], debug=True)
 
 

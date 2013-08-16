@@ -85,6 +85,7 @@ class DjinnServer < SOAP::RPC::HTTPServer
     add_method(@djinn, "start_roles_on_nodes", "ips_hash", "secret")
     add_method(@djinn, "gather_logs", "secret")
     add_method(@djinn, "run_groomer", "secret")
+    add_method(@djinn, "download_git", "repo", "branch", "app_path", "secret")
   end
 end
 
