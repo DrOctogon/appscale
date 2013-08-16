@@ -768,6 +768,25 @@ class Djinn
     return result
   end    
 
+  # Gets the Git repo download URL and passes
+  # Args:
+  #   secret: A string with the shared key for authentication.
+  #
+  def download_git(repo, branch, app_path, secret)
+    if !valid_secret?(secret)
+      return BAD_SECRET_MSG
+    end
+
+    random_dir = "/tmp/apps-#{HelperFunctions.get_random_alphanumeric()}"
+    tar_gz_file = "/tmp/apps-#{HelperFunctions.get_random_alphanumeric()}.tar.gz"
+    Djinn.log_run("git clone #{repo} -b #{branch} #{random_dir}")
+    Djinn.log_debug("This is the app path: #{app_path} - This is the branch #{branch} - This is the repo #{repo}")
+    Djinn.log_run("cd #{random_dir}/#{app_path} &&  tar -czf #{tar_gz_file} .")
+    #Djinn.log_run("rm -rf #{random_dir}")
+
+    return tar_gz_file
+  end
+
   # Gets the statistics of all the nodes in the AppScale deployment.
   # 
   # Args:
