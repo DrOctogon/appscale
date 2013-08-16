@@ -49,13 +49,16 @@ class AppControllerClient():
 
 
   # The number of times we should retry SOAP calls in case of failures.
-  DEFAULT_NUM_RETRIES = 0
+  DEFAULT_NUM_RETRIES = 10
 
 
   # The number of seconds we should wait when executing SOAP calls with a
   # timeout.
   DEFAULT_TIMEOUT_TIME = 10
 
+  # The number of seconds we should wait when executing SOAP calls with a
+  # timeout.
+  EXTENDED_TIMEOUT_TIME = 120
 
   # The number of seconds we should wait when instructing the AppController to
   # upload a new Google App Engine application and start it up. Because we wait
@@ -143,9 +146,13 @@ class AppControllerClient():
         return "true"
       else:
         signal.alarm(0)  # turn off the alarm before we retry
-        sys.stderr.write("Saw HTTPError {0} when communicating with the " \
-          "AppController. Message is {1}".format(exception, exception.msg))
-        return default
+        if num_retries > 0:
+          sys.stderr.write("Saw HTTPError {0} when communicating with the " \
+            "AppController. Message is {1}".format(exception, exception.msg))
+          return self.run_with_timeout(timeout_time, default, num_retries - 1,
+            http_error_is_success, function, *args)
+        else:
+          raise exception
     except Exception as exception:
       # This 'except' should be catching ssl.SSLError, but that error isn't
       # available when running in the App Engine sandbox.
@@ -434,3 +441,9 @@ class AppControllerClient():
     return self.run_with_timeout(self.DEFAULT_TIMEOUT_TIME, "Error",
       self.DEFAULT_NUM_RETRIES, self.NO_HTTP_ERROR, self.server.run_groomer,
       self.secret)
+
+
+  def download_git(self, repo, branch, app_path):
+    return self.run_with_timeout(self.EXTENDED_TIMEOUT_TIME, "Timeout ERROR",
+      self.DEFAULT_NUM_RETRIES, self.NO_HTTP_ERROR, self.server.download_git,
+      repo, branch, app_path, self.secret)
