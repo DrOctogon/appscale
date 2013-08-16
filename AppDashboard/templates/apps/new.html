@@ -2,27 +2,14 @@
 <!--Body content-->
 <div id="content" class="clearfix">
     <div class="contentwrapper"><!--Content wrapper-->
-
-        <div class="heading">
-
-            <h3>AppScale Dashboard</h3>                    
-
-            <div class="resBtnSearch">
-                <a href="#"><span class="icon16 icomoon-icon-search-3"></span></a>
-            </div>
-
-        </div><!-- End .heading-->
-
-        <!-- Build page from here: -->
+      <div class="page-header">
+        <h1>Deploy an Application</h1>
+      </div><!--close header-->
         <div class="row-fluid">
-          <div class="span3"></div><!--spacing div-->
-          <div class="span6">
-            <div class="page-header">
-                <h1>Upload an application</h1></div><!--close header-->
-                  <div class="well">
+          <div class="offset2 span4 well">
+              <h3>Upload an app from your local machine</h3><hr />
                   {% if can_upload_apps %}
-                    <form action="/apps/new" class="edit_app" enctype="multipart/form-data" id="edit_app" method="post">
-                      {% if success_message %}
+                  {% if success_message %}
                       <h3>
                         <ul id="noticeExplanation"><li class="flash notice">{{ success_message }}</li></ul>
                       </h3>
@@ -31,10 +18,10 @@
                       <h3>
                         <ul id="errorExplanation"><li class="flash error">{{ error_message }}</li></ul>
                       </h3>
-                      {% endif %}
-
+                  {% endif %}
+                    <form action="/apps/new" class="edit_app" enctype="multipart/form-data" id="edit_app" method="post">
                       <p>
-                        <input accept="tar.gz, tgz" id="app_file_data" name="app_file_data" size="30" type="file" />
+                        <input class="" accept="tar.gz, tgz" id="app_file_data" name="app_file_data" size="30" type="file" />
                         <img alt="Spinner" id="spinner" src="/images/spinner.gif?1363364452" style="display:none;" />
                       </p>
                       <p>
@@ -51,13 +38,34 @@
                       Applications must be smaller than 1 GB in size. For apps larger than this, please use the
                       command-line AppScale Tools.
                   </div>
-                  </div>
                   {% else %}
-                    <h2>You do not have permission to upload applications. Please contact your cloud administrator.</h2>
+                    <h2 style="color:#ff0000;" class="pull-left pull-right">You do not have permission to upload applications. Please contact your cloud administrator.</h2>
                   {% endif %}
-              </div><!--close well-->
-        </div><!--close span6 -->
-        <div class="span3"></div> <!--spacing div-->
-        </div> <!-- end row fluid -->
+          </div><!--close span-->
+
+          <div class="span4 well">
+            <h3>Upload an app from a remote Git repository</h3><hr />
+              {% if can_upload_apps %}
+              {% if flash_message %}
+                <h3><ul id="noticeExplanation"><li class="flash notice">{{ flash_message }}</li></ul></h3>
+              {% endif %}
+              {% if error_flash_message %}
+              <h3><ul id="errorExplanation"><li class="flash error">{{ error_flash_message }}</li></ul></h3>
+              {% endif %}
+              <form method="post" action="/git-deploy" data-validate="parsley" class="parsley-validated required" id="">
+                <label>Remote Git Repository:</label>
+                <input class="" style="width:500px;" name="repo" placeholder="https://github.com/AppScale/appscale.git" type="text">
+                <label>Remote Git Branch (default is master):</label>
+                <input class="input-xlarge" name="branch" placeholder="Master" value="master" type="text">
+                <label>Directory of app (default is the top level directory):</label>
+                <input class="input-xlarge" name="app_path" placeholder="/" value="/" type="text">
+                  <br />
+                <button class="pull-left btn btn-primary" type="submit">Deploy Web App</button>
+              </form>
+              {% else %}
+                    <h2 style="color:#ff0000;" class="pull-left pull-right">You do not have permission to upload applications. Please contact your cloud administrator.</h2>
+              {% endif %}
+          </div> <!--spacing div-->
+        </div><!--close row-fluid -->
     </div> <!-- end content wrapper -->
-</div> <!--end content-->
+</div> <!-- end content  -->
