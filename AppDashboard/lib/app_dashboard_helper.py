@@ -332,6 +332,36 @@ class AppDashboardHelper():
       raise AppHelperException("There was an error uploading your application.")
 
 
+  def download_app(self, repo, branch, app_path):
+    """
+    Downloads a Google App Engine application from a Git repository.
+
+    Args:
+      repo: A string containing the location of the git repository to download.
+      branch: A string containing the the branch to deploy from repo.
+      app_path: A string containing the path of the app to be deployed.
+    Returns:
+      A string indicating the URL to be downloaded and parsed.
+    Raises:
+      AppHelperException: If the application was unsuccessfully downloaded.
+    """
+    user = users.get_current_user()
+    if not user:
+      raise AppHelperException("You must be logged in to deploy applications.")
+    try:
+      acc = self.get_appcontroller_client()
+      repo_location = acc.download_git(repo, branch, app_path)
+      logging.debug("Repo location: {0}".format(repo_location))
+      if repo_location == "Timeout ERROR":
+        return False, "There was an error uploading your repository." \
+                    " Please try again."
+      else:
+        return True, repo_location
+    except Exception as err:
+      logging.exception(err)
+      raise False, "There was an error uploading your repository."
+
+
   def delete_app(self, appname):
     """ Removes a Google App Engine application from this AppScale deployment.
 
