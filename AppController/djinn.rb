@@ -3312,7 +3312,7 @@ class Djinn
     maybe_start_taskqueue_worker("apichecker")
 
     if my_node.is_login?
-      TaskQueue.start_flower(@creds['flower_password'])
+      TaskQueue.start_flower()
     end
 
     # appengine is started elsewhere
