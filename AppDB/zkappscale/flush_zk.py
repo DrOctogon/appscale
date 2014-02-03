@@ -9,7 +9,7 @@ def delete_recursive(handle, path):
     children = handle.get_children(path)
     for child in children:
       delete_recursive(handle, PATH_SEPARATOR.join([path, child]))
-    handle.delete(path)
+    handle.delete(path, recursive=True)
   except kazoo.exceptions.NoNodeError:
     pass
 
